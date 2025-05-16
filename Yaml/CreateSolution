@@ -1,0 +1,122 @@
+kind: AdaptiveDialog
+beginDialog:
+  kind: OnRecognizedIntent
+  id: main
+  intent:
+    triggerQueries:
+      - Create new solution
+      - Create solution
+      - New solution
+      - Dynamics solution
+      - Create a new solution
+
+  actions:
+    - kind: Question
+      id: question_ivUYC3
+      interruptionPolicy:
+        allowInterruption: true
+
+      variable: init:Topic.SolutionName
+      prompt: Enter the solution name
+      entity: StringPrebuiltEntity
+
+    - kind: Question
+      id: question_QkvZ0h
+      interruptionPolicy:
+        allowInterruption: true
+
+      variable: init:Topic.SolutionCreateConfirmation
+      prompt: |-
+        Are you sure, you want me to create a solution with the below details?
+        
+        **Display Name: {Topic.SolutionName}**
+        
+        **Unique Name: {Lower(Trim(Substitute(Topic.SolutionName," ","")))}**
+      entity:
+        kind: EmbeddedEntity
+        definition:
+          kind: ClosedListEntity
+          items:
+            - id: Yes
+              displayName: Yes
+
+            - id: No
+              displayName: No
+
+    - kind: ConditionGroup
+      id: conditionGroup_YYmwfP
+      conditions:
+        - id: conditionItem_0aFKSu
+          condition: =Topic.SolutionCreateConfirmation = 'cr432_bot626100.topic.Createsolution.main.question_QkvZ0h'.Yes
+          actions:
+            - kind: InvokeFlowAction
+              id: invokeFlowAction_4vUvcF
+              displayName: Call create solution flow
+              input:
+                binding:
+                  text: =Topic.SolutionName
+
+              output:
+                binding:
+                  response: Topic.CreateSolutionResponse
+
+              flowId: 7bfcab68-f72e-f011-8c4d-0022480bf06c
+
+            - kind: ConditionGroup
+              id: conditionGroup_CzUgfj
+              conditions:
+                - id: conditionItem_CdHffw
+                  condition: =Topic.CreateSolutionResponse = "Created"
+                  actions:
+                    - kind: SendActivity
+                      id: sendActivity_tJMrF5
+                      activity: **Your solution called {Topic.SolutionName} is created successfully.**
+
+                    - kind: Question
+                      id: question_Xv9tiw
+                      interruptionPolicy:
+                        allowInterruption: true
+
+                      variable: init:Topic.CreateOneMoreSolution
+                      prompt: Do you want me to create another solution?
+                      entity:
+                        kind: EmbeddedEntity
+                        definition:
+                          kind: ClosedListEntity
+                          items:
+                            - id: Yes
+                              displayName: Yes
+
+                            - id: No
+                              displayName: No
+
+                        displayName: EmbeddedEntity-R2eZYY
+
+                    - kind: ConditionGroup
+                      id: conditionGroup_SRWPHk
+                      conditions:
+                        - id: conditionItem_qOiSjZ
+                          condition: =Topic.CreateOneMoreSolution = 'cr432_bot626100.topic.Createsolution.main.question_Xv9tiw'.Yes
+                          actions:
+                            - kind: GotoAction
+                              id: x4Nxe5
+                              actionId: question_ivUYC3
+
+              elseActions:
+                - kind: SendActivity
+                  id: sendActivity_Mc4oTA
+                  activity: |-
+                    Sorry! I couldn't complete your request, due to some technical issues.
+                    
+                    **Please check if the solution is already exist or try with a different name.**
+
+                - kind: GotoAction
+                  id: 2pyvw2
+                  actionId: question_ivUYC3
+
+    - kind: BeginDialog
+      id: J5KWbb
+      dialog: cr432_bot626100.topic.ConversationStart
+
+inputType: {}
+outputType: {}
