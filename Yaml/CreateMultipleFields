@@ -1,0 +1,61 @@
+kind: AdaptiveDialog
+beginDialog:
+  kind: OnRecognizedIntent
+  id: main
+  intent:
+    triggerQueries:
+      - Create multiple fields
+      - Multiple fields
+
+  actions:
+    - kind: Question
+      id: question_nJYNON
+      interruptionPolicy:
+        allowInterruption: true
+
+      variable: init:Topic.CSVInput
+      prompt: |
+        Enter the CSV content
+      entity: StringPrebuiltEntity
+
+    - kind: InvokeFlowAction
+      id: invokeFlowAction_kPXZvc
+      displayName: Call create multiple fields flow
+      input:
+        binding:
+          text: =Topic.CSVInput
+
+      output:
+        binding:
+          response: Topic.Response
+
+      flowId: 83da71b0-1830-f011-8c4d-0022480bf06c
+
+    - kind: ConditionGroup
+      id: conditionGroup_A6sCHz
+      conditions:
+        - id: conditionItem_lLIgrJ
+          condition: =Topic.Response = "AllCreated"
+          actions:
+            - kind: SendActivity
+              id: sendActivity_GSyuPO
+              activity: **All fields are created successfully.**
+
+      elseActions:
+        - kind: SendActivity
+          id: sendActivity_yPYSfF
+          activity: |-
+            Sorry! Couldn't complete your request due to some technical issues. Please try again.
+            
+            {Topic.Response}
+
+        - kind: GotoAction
+          id: DMthag
+          actionId: question_nJYNON
+
+    - kind: BeginDialog
+      id: Uu4Ynb
+      dialog: cr432_bot626100.topic.ConversationStart
+
+inputType: {}
+outputType: {}
