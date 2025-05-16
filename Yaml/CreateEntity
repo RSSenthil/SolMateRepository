@@ -1,0 +1,154 @@
+kind: AdaptiveDialog
+beginDialog:
+  kind: OnRecognizedIntent
+  id: main
+  intent:
+    triggerQueries:
+      - Create new entity
+      - Create entity
+      - Entity creation
+
+  actions:
+    - kind: Question
+      id: question_V7BE3o
+      interruptionPolicy:
+        allowInterruption: true
+
+      variable: init:Topic.SolutionName
+      prompt: Enter solution unique name
+      entity: StringPrebuiltEntity
+
+    - kind: Question
+      id: question_OkfAPO
+      interruptionPolicy:
+        allowInterruption: true
+
+      variable: init:Topic.EntityUniqueName
+      prompt: Enter entity unique name
+      entity: StringPrebuiltEntity
+
+    - kind: Question
+      id: question_KddbPT
+      interruptionPolicy:
+        allowInterruption: true
+
+      variable: init:Topic.EntityDisplayName
+      prompt: Enter entity display name
+      entity: StringPrebuiltEntity
+
+    - kind: Question
+      id: question_WYn8iJ
+      interruptionPolicy:
+        allowInterruption: true
+
+      variable: init:Topic.EntityPluralName
+      prompt: Enter entity plural name
+      entity: StringPrebuiltEntity
+
+    - kind: Question
+      id: question_JAZ58X
+      interruptionPolicy:
+        allowInterruption: true
+
+      variable: init:Topic.ConfirmEntityCreation
+      prompt: |-
+        You have given below details. Is it OK to proceed?
+        
+        Solution unique name: **{Topic.SolutionName}**
+        
+        
+        Entity unique name: **{Topic.EntityUniqueName}**
+        
+        
+        Entity display name: **{Topic.EntityDisplayName}**
+        
+        
+        Entity plural name: **{Topic.EntityPluralName}**
+      entity:
+        kind: EmbeddedEntity
+        definition:
+          kind: ClosedListEntity
+          items:
+            - id: Yes
+              displayName: Yes
+
+            - id: No
+              displayName: No
+
+    - kind: ConditionGroup
+      id: conditionGroup_2isEog
+      conditions:
+        - id: conditionItem_XfHjPM
+          condition: =Topic.ConfirmEntityCreation = 'cr432_bot626100.topic.Createentity.main.question_JAZ58X'.Yes
+          actions:
+            - kind: InvokeFlowAction
+              id: invokeFlowAction_SClG18
+              displayName: Call create entity flow
+              input:
+                binding:
+                  text: =Topic.SolutionName
+                  text_1: =Topic.EntityUniqueName
+                  text_2: =Topic.EntityDisplayName
+                  text_3: =Topic.EntityPluralName
+
+              output:
+                binding:
+                  response: Topic.CreateEntityResponse
+
+              flowId: 59f3d74c-712f-f011-8c4d-0022480bf06c
+
+            - kind: ConditionGroup
+              id: conditionGroup_177lfB
+              conditions:
+                - id: conditionItem_UXNIf2
+                  condition: =Topic.CreateEntityResponse = "Created"
+                  actions:
+                    - kind: SendActivity
+                      id: sendActivity_Hrgv8x
+                      activity: **Your entity called {Topic.EntityDisplayName} is created successfully.**
+
+                    - kind: Question
+                      id: question_X0AuaM
+                      interruptionPolicy:
+                        allowInterruption: true
+
+                      variable: init:Topic.CreateOneMoreEntity
+                      prompt: Do you want me to create another entity?
+                      entity:
+                        kind: EmbeddedEntity
+                        definition:
+                          kind: ClosedListEntity
+                          items:
+                            - id: Yes
+                              displayName: Yes
+
+                            - id: No
+                              displayName: No
+
+                    - kind: ConditionGroup
+                      id: conditionGroup_kcmgyH
+                      conditions:
+                        - id: conditionItem_gm8F3M
+                          condition: =Topic.CreateOneMoreEntity = 'cr432_bot626100.topic.Createentity.main.question_X0AuaM'.Yes
+                          actions:
+                            - kind: GotoAction
+                              id: xZw6lX
+                              actionId: question_V7BE3o
+
+              elseActions:
+                - kind: SendActivity
+                  id: sendActivity_UdrzGb
+                  activity: |-
+                    Sorry! I couldn't complete your request due to some technical issues.
+                    Please check if the entity already exists or please try again.
+
+                - kind: GotoAction
+                  id: 7vgYYk
+                  actionId: question_V7BE3o
+
+    - kind: BeginDialog
+      id: NIx41J
+      dialog: cr432_bot626100.topic.ConversationStart
+
+inputType: {}
+outputType: {}
