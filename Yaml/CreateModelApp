@@ -1,0 +1,119 @@
+kind: AdaptiveDialog
+beginDialog:
+  kind: OnRecognizedIntent
+  id: main
+  intent:
+    triggerQueries:
+      - Create model app
+      - Create new model app
+      - New model app
+
+  actions:
+    - kind: Question
+      id: question_9a1DKP
+      interruptionPolicy:
+        allowInterruption: true
+
+      variable: init:Topic.AppName
+      prompt: Enter App Display Name
+      entity: StringPrebuiltEntity
+
+    - kind: Question
+      id: question_3P1nbB
+      interruptionPolicy:
+        allowInterruption: true
+
+      variable: init:Topic.SolutionName
+      prompt: Enter the solution name that you want this app to be added
+      entity: StringPrebuiltEntity
+
+    - kind: Question
+      id: question_Me3LIk
+      interruptionPolicy:
+        allowInterruption: true
+
+      variable: init:Topic.EntityDisplayName
+      prompt: Enter the entity display name
+      entity: StringPrebuiltEntity
+
+    - kind: Question
+      id: question_vJ00rw
+      interruptionPolicy:
+        allowInterruption: true
+
+      variable: init:Topic.EntityUniqueName
+      prompt: Enter the entity unique name
+      entity: StringPrebuiltEntity
+
+    - kind: InvokeFlowAction
+      id: invokeFlowAction_R95PnY
+      displayName: Call create app flow
+      input:
+        binding:
+          text: =Topic.AppName
+          text_1: =Topic.SolutionName
+          text_2: =Topic.EntityDisplayName
+          text_3: =Topic.EntityUniqueName
+
+      output:
+        binding:
+          response: Topic.Response
+
+      flowId: 66a24619-bc31-f011-8c4e-0022480bf06c
+
+    - kind: ConditionGroup
+      id: conditionGroup_EKFPda
+      conditions:
+        - id: conditionItem_9aieKX
+          condition: =Topic.Response = "Created"
+          actions:
+            - kind: SendActivity
+              id: sendActivity_HsrP1j
+              activity: **Your app {Topic.AppName} is created successfully and added into {Topic.SolutionName}.**
+
+            - kind: Question
+              id: question_W2N7MO
+              interruptionPolicy:
+                allowInterruption: true
+
+              variable: init:Topic.ConfirmOneMoreApp
+              prompt: Do you want to create one more app?
+              entity:
+                kind: EmbeddedEntity
+                definition:
+                  kind: ClosedListEntity
+                  items:
+                    - id: Yes
+                      displayName: Yes
+
+                    - id: No
+                      displayName: No
+
+            - kind: ConditionGroup
+              id: conditionGroup_Gl0bkm
+              conditions:
+                - id: conditionItem_8NykmX
+                  condition: =Topic.ConfirmOneMoreApp = 'cr432_bot626100.topic.Createmodelapp.main.question_W2N7MO'.Yes
+                  actions:
+                    - kind: GotoAction
+                      id: qKYeYV
+                      actionId: question_9a1DKP
+
+      elseActions:
+        - kind: SendActivity
+          id: sendActivity_4DJpjb
+          activity: |-
+            Sorry! Couldn't complete your request due to some technical issues. Please try again.
+            
+            {Topic.Response}
+
+        - kind: GotoAction
+          id: IPCl78
+          actionId: question_9a1DKP
+
+    - kind: BeginDialog
+      id: 5OUvnj
+      dialog: cr432_bot626100.topic.ConversationStart
+
+inputType: {}
+outputType: {}
